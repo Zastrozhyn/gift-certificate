@@ -9,10 +9,10 @@ import java.util.Collection;
 import java.util.List;
 
 @Mapper(uses = TagMapper.class)
-public interface GiftCertificateMapper {
+public interface CertificateMapper {
     GiftCertificate mapToEntity(GiftCertificateDto model);
 
-    @Mapping(source = "tags", target = "tagModels")
+    @Mapping(source = "tags", target = "tags")
     GiftCertificateDto mapToDto(GiftCertificate entity);
 
     List<GiftCertificateDto> mapToDto(Collection<GiftCertificate> entities);

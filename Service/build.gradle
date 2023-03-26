@@ -15,10 +15,12 @@ dependencies {
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.9.2'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.2.0'
     testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.24.2'
+
     implementation group: 'org.springframework', name: 'spring-core', version: '6.0.7'
     implementation group: 'org.springframework', name: 'spring-beans', version: '6.0.7'
     implementation group: 'org.springframework', name: 'spring-context', version: '6.0.7'
     implementation group: 'org.springframework', name: 'spring-jdbc', version: '6.0.7'
+
     implementation project(':Repository')
 }
 

@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.clevertec.ecl.dto.GiftCertificateDto;
 import ru.clevertec.ecl.entity.Tag;
-import ru.clevertec.ecl.mapper.GiftCertificateMapper;
+import ru.clevertec.ecl.mapper.CertificateMapper;
 import ru.clevertec.ecl.service.GiftCertificateService;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/gift-certificates")
 public class GiftCertificateController {
     private final GiftCertificateService giftCertificateService;
-    private final GiftCertificateMapper mapper = Mappers.getMapper(GiftCertificateMapper.class);
+    private final CertificateMapper mapper = Mappers.getMapper(CertificateMapper.class);
 
     @Autowired
     public GiftCertificateController(GiftCertificateService giftCertificateService) {
