@@ -1,2 +1,5 @@
 rootProject.name = 'gift-certificate'
+include 'Repository'
+include 'Service'
+include 'Web'
 
