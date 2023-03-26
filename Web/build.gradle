@@ -1,22 +1,26 @@
 plugins {
     id 'java'
+    id "io.freefair.lombok" version "8.0.1"
     id 'war'
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
+group 'ru.clevertec'
+version '1.0'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.26'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
     implementation group: 'org.springframework', name: 'spring-webmvc', version: '6.0.7'
     compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.0.0'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.14.2'
     implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.14.2'
+    implementation group: 'org.mapstruct', name: 'mapstruct', version: '1.5.3.Final'
+    implementation group: 'org.mapstruct', name: 'mapstruct-processor', version: '1.5.3.Final'
     implementation project(':Repository')
     implementation project(':Service')
 }

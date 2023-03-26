@@ -1,9 +1,12 @@
 package ru.clevertec.ecl.controller;
 
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.clevertec.ecl.dto.TagDto;
 import ru.clevertec.ecl.entity.Tag;
+import ru.clevertec.ecl.mapper.TagMapper;
 import ru.clevertec.ecl.service.TagService;
 
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.List;
 @RequestMapping("/tags")
 public class TagController {
     private final TagService tagService;
+    private final TagMapper mapper = Mappers.getMapper(TagMapper.class);
 
     @Autowired
     public TagController(TagService tagService) {
@@ -20,18 +24,18 @@ public class TagController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Tag create(@RequestBody Tag tag) {
-        return tagService.create(tag);
+    public TagDto create(@RequestBody Tag tag) {
+        return mapper.mapToDto(tagService.create(tag));
     }
 
     @GetMapping
-    public List<Tag> findAll() {
-        return tagService.findAll();
+    public List<TagDto> findAll() {
+        return mapper.mapToDto(tagService.findAll());
     }
 
     @GetMapping("/{id}")
-    public Tag findById(@PathVariable Long id) {
-        return tagService.findTag(id);
+    public TagDto findById(@PathVariable Long id) {
+        return mapper.mapToDto(tagService.findTag(id));
     }
 
     @DeleteMapping(value = "/{tagId}")
