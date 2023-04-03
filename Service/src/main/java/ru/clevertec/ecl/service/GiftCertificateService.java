@@ -9,7 +9,7 @@ import java.util.Set;
 public interface GiftCertificateService {
     GiftCertificate create(GiftCertificate giftCertificate);
 
-    List<GiftCertificate> findAll();
+    List<GiftCertificate> findAll(Integer offset, Integer limit);
 
     GiftCertificate findById(Long id);
 
@@ -23,5 +23,6 @@ public interface GiftCertificateService {
 
     GiftCertificate update(Long id, GiftCertificate giftCertificate);
 
-    List<GiftCertificate> findByAttributes(String tagName, String searchPart, String sortingField, String orderSort, String search);
+    List<GiftCertificate> findByAttributes(String tagName, String searchPart, String sortingField,
+                                           String orderSort, String search, Integer pageSize, Integer page);
 }

@@ -116,7 +116,6 @@ public class GiftCertificateServiceImplTest {
         GiftCertificate actualCertificate = service.addTagToCertificate(tag, CERTIFICATE_ID);
         assertThat(actualCertificate).isEqualTo(certificate);
         verify(giftCertificateDao,times(2)).findById(CERTIFICATE_ID);
-        verify(giftCertificateDao).updateDate(CERTIFICATE_ID);
         verify(tagService).isTagValid(tag);
         verify(tagService, times(2)).findTagByName(TAG_NAME);
     }

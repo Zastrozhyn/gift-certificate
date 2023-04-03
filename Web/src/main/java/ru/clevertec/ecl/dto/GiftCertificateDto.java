@@ -18,6 +18,6 @@ public class GiftCertificateDto {
     private BigDecimal price;
     private LocalDateTime createDate;
     private LocalDateTime lastUpdateDate;
-    private Duration duration;
+    private Long duration;
     private Set<Tag> tags = new LinkedHashSet<>();
 }

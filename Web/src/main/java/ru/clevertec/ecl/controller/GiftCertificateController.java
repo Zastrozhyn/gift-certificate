@@ -24,7 +24,7 @@ public class GiftCertificateController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public GiftCertificateDto insert(@RequestBody GiftCertificateDto giftCertificate) {
+    public GiftCertificateDto create(@RequestBody GiftCertificateDto giftCertificate) {
         return mapper.mapToDto(giftCertificateService.create(mapper.mapToEntity(giftCertificate)));
     }
 
@@ -48,11 +48,14 @@ public class GiftCertificateController {
 
     @GetMapping()
     public List<GiftCertificateDto> findByAttributes(@RequestParam(required = false, name = "tagName") String tagName,
-                                                  @RequestParam(required = false, name = "searchPart") String searchPart,
-                                                  @RequestParam(required = false, name = "sortingField") String sortingField,
-                                                  @RequestParam(required = false, name = "orderSort") String orderSort,
-                                                  @RequestParam(required = false, name = "search") String search){
-        return mapper.mapToDto(giftCertificateService.findByAttributes(tagName, searchPart, sortingField, orderSort, search));
+                                                     @RequestParam(required = false, name = "searchPart") String searchPart,
+                                                     @RequestParam(required = false, name = "sortingField") String sortingField,
+                                                     @RequestParam(required = false, name = "orderSort") String orderSort,
+                                                     @RequestParam(required = false, defaultValue = "10", name = "pageSize") Integer pageSize,
+                                                     @RequestParam(required = false, defaultValue = "1", name = "page") Integer page,
+                                                     @RequestParam(required = false, name = "search") String search){
+        return mapper.mapToDto(giftCertificateService.findByAttributes(tagName, searchPart,
+                sortingField, orderSort, search, pageSize, page));
     }
 
     @PutMapping("/{id}/tags")

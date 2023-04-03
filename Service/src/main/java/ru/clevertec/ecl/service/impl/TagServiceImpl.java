@@ -9,9 +9,9 @@ import ru.clevertec.ecl.service.TagService;
 import ru.clevertec.ecl.validator.TagValidator;
 
 import java.util.List;
-import java.util.Set;
 
 import static ru.clevertec.ecl.exception.ExceptionCode.*;
+import static ru.clevertec.ecl.util.PaginationUtil.calculateOffset;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -43,8 +43,8 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<Tag> findAll() {
-        return tagDao.findAll();
+    public List<Tag> findAll(Integer pageSize, Integer page) {
+        return tagDao.findAll(calculateOffset(pageSize,page), pageSize);
     }
 
     @Override
@@ -72,25 +72,6 @@ public class TagServiceImpl implements TagService {
         return tagDao.findTagByName(name);
     }
 
-    @Override
-    public void deleteTagFromCertificate(Tag tag, Long idCertificate) {
-        tagDao.deleteTagFromCertificate(tag, idCertificate);
-    }
-
-    @Override
-    public List<Tag> findTagsByName(Set<Tag> tags) {
-        return tagDao.findTagsByName(tags);
-    }
-
-    @Override
-    public void createTags(Set<Tag> tags) {
-        tagDao.createTags(tags);
-    }
-
-    @Override
-    public void addTagsToCertificate(List<Tag> tags, Long idCertificate) {
-        tagDao.addTagSToCertificate(tags, idCertificate);
-    }
 
     @Override
     public boolean isTagValid(Tag tag) {

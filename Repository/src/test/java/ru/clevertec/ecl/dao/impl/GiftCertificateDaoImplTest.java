@@ -35,7 +35,9 @@ public class GiftCertificateDaoImplTest {
     private static final String CERTIFICATE_NAME = "Certificate";
     private static final String DESCRIPTION = "Description";
     private static final BigDecimal PRICE = new BigDecimal("1.00");
-    private static final int DURATION = 1;
+    private static final int DURATION = 0;
+    private static final int OFFSET = 0;
+    private static final int LIMIT = 10;
     private static final LocalDateTime CREAT_DATE = LocalDateTime.parse("2021-10-08 11:11:11.100001", FORMATTER);
     private static final LocalDateTime LAST_UPDATE_DATE = LocalDateTime.parse("2021-01-01 01:11:11.100001",FORMATTER);
     private static final int AMOUNT_OF_CERTIFICATES_IN_DB = 3;
@@ -71,43 +73,30 @@ public class GiftCertificateDaoImplTest {
 
     @Test
     void checkFindAll() {
-        List<GiftCertificate> certificates = certificateDao.findAll();
+        List<GiftCertificate> certificates = certificateDao.findAll(OFFSET, LIMIT);
         assertThat(certificates).hasSize(AMOUNT_OF_CERTIFICATES_IN_DB);
     }
 
     @Test
     void checkFindByAttributesAmountOfCertificate() {
         List<GiftCertificate> actual = certificateDao.findByAttributes(TAG_NAME_FOR_SEARCH,
-                PART_OF_SEARCH, null, null);
-        assertThat(actual).hasSize(1);
+                PART_OF_SEARCH, null, null, OFFSET, LIMIT);
+        assertThat(actual).hasSize(2);
     }
 
     @Test
     void checkFindByAttributesTest() {
         List<GiftCertificate> actual = certificateDao.findByAttributes(TAG_NAME_FOR_SEARCH,
-                PART_OF_SEARCH, null, null);
+                PART_OF_SEARCH, null, null, OFFSET, LIMIT);
         assertThat(actual.get(0)).isEqualTo(certificate);
     }
 
     @Test
     void checkFindByAttributesNullResult() {
         List<GiftCertificate> actual = certificateDao.findByAttributes(null,
-                null, null, null);
+                null, null, null, OFFSET, LIMIT);
         assertThat(actual).hasSize(0);
     }
 
-    @Test
-    void checkDeleteNonExistingCertificate() {
-        certificateDao.delete(100L);
-        List<GiftCertificate> tags = certificateDao.findAll();
-        assertThat(tags).hasSize(AMOUNT_OF_CERTIFICATES_IN_DB);
-    }
-
-    @Test
-    void checkDeleteTest() {
-        certificateDao.delete(1L);
-        List<GiftCertificate> tags = certificateDao.findAll();
-        assertThat(tags).hasSize(AMOUNT_OF_CERTIFICATES_IN_DB - 1);
-    }
 }
 
