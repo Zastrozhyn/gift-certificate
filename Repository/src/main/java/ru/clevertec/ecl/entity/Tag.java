@@ -1,13 +1,24 @@
 package ru.clevertec.ecl.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import javax.persistence.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Tag {
+@EqualsAndHashCode
+@ToString
+@Getter
+@Entity
+@Table(name = "tag")
+public class Tag implements BaseEntity<Long>{
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
+
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 }

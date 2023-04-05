@@ -29,8 +29,9 @@ public class TagController {
     }
 
     @GetMapping
-    public List<TagDto> findAll() {
-        return mapper.mapToDto(tagService.findAll());
+    public List<TagDto> findAll(@RequestParam(required = false, defaultValue = "10", name = "pageSize") Integer pageSize,
+                                @RequestParam(required = false, defaultValue = "1", name = "page") Integer page) {
+        return mapper.mapToDto(tagService.findAll(pageSize, page));
     }
 
     @GetMapping("/{id}")

@@ -10,7 +10,7 @@ public interface TagService {
 
     Tag findTag(Long id);
 
-    List<Tag> findAll();
+    List<Tag> findAll(Integer offset, Integer limit);
 
     void delete(Long id);
 
@@ -22,11 +22,4 @@ public interface TagService {
 
     Tag findTagByName(String name);
 
-    void deleteTagFromCertificate(Tag tag, Long idCertificate);
-
-    List<Tag> findTagsByName(Set<Tag> tags);
-
-    void createTags(Set<Tag> tags);
-
-    void addTagsToCertificate(List<Tag> tags, Long idCertificate);
 }

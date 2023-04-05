@@ -11,22 +11,16 @@ import ru.clevertec.ecl.service.GiftCertificateService;
 import ru.clevertec.ecl.service.TagService;
 import ru.clevertec.ecl.validator.GiftCertificateValidator;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static ru.clevertec.ecl.exception.ExceptionCode.*;
+import static ru.clevertec.ecl.util.PaginationUtil.calculateOffset;
 
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final GiftCertificateDao giftCertificateDao;
     private final TagService tagService;
     private final GiftCertificateValidator giftCertificateValidator;
-    private static final String FIELD_NAME = "name";
-    private static final String FIELD_DESCRIPTION = "description";
-    private static final String FIELD_PRICE = "price";
-    private static final String FIELD_DURATION = "duration";
 
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateDao giftCertificateDao, TagService tagService,
@@ -52,8 +46,8 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificate> findAll() {
-        return giftCertificateDao.findAll();
+    public List<GiftCertificate> findAll(Integer offset, Integer limit) {
+        return giftCertificateDao.findAll(offset, limit);
     }
 
     @Override
@@ -79,71 +73,47 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             tagService.create(tag);
         }
         tagService.addTagToCertificate(tagService.findTagByName(tag.getName()), idCertificate);
-        giftCertificateDao.updateDate(idCertificate);
         return giftCertificateDao.findById(idCertificate);
     }
 
     @Override
     @Transactional
     public void addTagsToCertificate(Set<Tag> tags, long idCertificate) {
-        tagService.createTags(tags);
-        List<Tag> newTags = tagService.findTagsByName(tags);
-        tagService.addTagsToCertificate(newTags, idCertificate);
+        tags.forEach(tag -> addTagToCertificate(tag, idCertificate));
     }
 
     @Override
     @Transactional
     public GiftCertificate deleteTagFromCertificate(Tag tag, long idCertificate) {
-        if (isTagCanBeDeletedFromCertificate(tag, idCertificate)) {
-            tagService.deleteTagFromCertificate(tagService.findTagByName(tag.getName()), idCertificate);
+        GiftCertificate certificate = giftCertificateDao.findById(idCertificate);
+        if(isTagCanBeDeletedFromCertificate(tag, idCertificate)){
+            Tag deletedTag = tagService.findTagByName(tag.getName());
+            certificate.deleteTagFromCertificate(deletedTag);
         }
-        giftCertificateDao.updateDate(idCertificate);
-        return giftCertificateDao.findById(idCertificate);
+        return giftCertificateDao.update(certificate);
     }
 
     @Override
     public GiftCertificate update(Long id, GiftCertificate updatedGiftCertificate) {
-        if (isGiftCertificateValid(updatedGiftCertificate) && isGiftCertificateExist(id)) {
-            GiftCertificate currentGiftCertificate = giftCertificateDao.findById(id);
-            Map<String, Object> updatedFields = getUpdatedField(updatedGiftCertificate, currentGiftCertificate);
-            giftCertificateDao.update(id, updatedFields);
-        }
-        return giftCertificateDao.findById(id);
+        isGiftCertificateExist(id);
+        isGiftCertificateValid(updatedGiftCertificate);
+        updatedGiftCertificate.setId(id);
+        return giftCertificateDao.update(updatedGiftCertificate);
     }
 
     @Override
     public List<GiftCertificate> findByAttributes(String tagName, String searchPart, String sortingField,
-                                                  String orderSort, String search) {
-        if (search == null) {
-            return giftCertificateDao.findAll();
+                                                  String orderSort, String search, Integer pageSize, Integer page) {
+        List<GiftCertificate> certificates = new ArrayList<>();
+        if (search == null){
+            certificates = giftCertificateDao.findAll(calculateOffset(pageSize, page), pageSize);
         }
         if (giftCertificateValidator.isGiftCertificateFieldValid(sortingField)
-                && giftCertificateValidator.isOrderSortValid(orderSort)) {
-            return giftCertificateDao.findByAttributes(tagName, searchPart, sortingField, orderSort);
+                && giftCertificateValidator.isOrderSortValid(orderSort) && search != null) {
+            certificates = giftCertificateDao.findByAttributes(tagName, searchPart, sortingField, orderSort,
+                    calculateOffset(pageSize, page), pageSize );
         }
-        throw new EntityException(WRONG_FIND_PARAMETERS.getErrorCode());
-    }
-
-    private Map<String, Object> getUpdatedField(GiftCertificate updatedGiftCertificate,
-                                                GiftCertificate currentGiftCertificate) {
-        Map<String, Object> updatedFields = new HashMap<>();
-        if (updatedGiftCertificate.getName() != null &&
-                !updatedGiftCertificate.getName().equals(currentGiftCertificate.getName())) {
-            updatedFields.put(FIELD_NAME, updatedGiftCertificate.getName());
-        }
-        if (updatedGiftCertificate.getDescription() != null &&
-                !updatedGiftCertificate.getDescription().equals(currentGiftCertificate.getDescription())) {
-            updatedFields.put(FIELD_DESCRIPTION, updatedGiftCertificate.getDescription());
-        }
-        if (updatedGiftCertificate.getDuration().toDays() != 0 &&
-                updatedGiftCertificate.getDuration() != currentGiftCertificate.getDuration()) {
-            updatedFields.put(FIELD_DURATION, updatedGiftCertificate.getDuration());
-        }
-        if (updatedGiftCertificate.getPrice() != null &&
-                !updatedGiftCertificate.getPrice().equals(currentGiftCertificate.getPrice())) {
-            updatedFields.put(FIELD_PRICE, updatedGiftCertificate.getPrice());
-        }
-        return updatedFields;
+        return certificates;
     }
 
     private boolean isGiftCertificateValid(GiftCertificate giftCertificate) {
