@@ -44,4 +44,9 @@ public class TagController {
     public void deleteTag(@PathVariable(name = "tagId") Long id) {
         tagService.delete(id);
     }
+
+    @GetMapping("/tags")
+    public List<TagDto>  getMostPopularTag() {
+        return mapper.mapToDto(tagService.getMostPopularTag());
+    }
 }

@@ -18,5 +18,6 @@ public interface GiftCertificateDao {
 
     List<GiftCertificate> findByAttributes(String tagName, String searchPart, String sortingField, String orderSort,
                                            Integer offset, Integer limit);
+    List<GiftCertificate> findAllByIds(List<Long> idList);
 
 }

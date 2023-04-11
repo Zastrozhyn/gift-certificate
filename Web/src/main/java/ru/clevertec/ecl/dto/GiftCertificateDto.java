@@ -1,11 +1,9 @@
 package ru.clevertec.ecl.dto;
 
-import lombok.Builder;
 import lombok.Data;
 import ru.clevertec.ecl.entity.Tag;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;

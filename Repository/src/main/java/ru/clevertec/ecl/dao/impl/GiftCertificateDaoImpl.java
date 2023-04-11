@@ -106,4 +106,13 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
         return result;
     }
 
+    @Override
+    public List<GiftCertificate> findAllByIds(List<Long> idList) {
+        Session session = factory.openSession();
+        session.beginTransaction();
+        List<GiftCertificate> result = session.byMultipleIds(GiftCertificate.class).withBatchSize(idList.size()).multiLoad(idList);
+        session.getTransaction().commit();
+        session.close();
+        return result;
+    }
 }

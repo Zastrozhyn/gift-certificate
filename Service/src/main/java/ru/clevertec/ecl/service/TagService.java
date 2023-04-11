@@ -2,6 +2,7 @@ package ru.clevertec.ecl.service;
 
 import ru.clevertec.ecl.entity.Tag;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -18,8 +19,7 @@ public interface TagService {
 
     boolean isTagExist(Tag tag);
 
-    void addTagToCertificate(Tag tag, Long idCertificate);
-
     Tag findTagByName(String name);
 
+    List<Tag> getMostPopularTag();
 }

@@ -1,12 +1,14 @@
 package ru.clevertec.ecl.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.clevertec.ecl.dao.GiftCertificateDao;
 import ru.clevertec.ecl.entity.GiftCertificate;
 import ru.clevertec.ecl.entity.Tag;
 import ru.clevertec.ecl.exception.EntityException;
+import ru.clevertec.ecl.repository.GiftCertificateRepository;
 import ru.clevertec.ecl.service.GiftCertificateService;
 import ru.clevertec.ecl.service.TagService;
 import ru.clevertec.ecl.validator.GiftCertificateValidator;
@@ -14,18 +16,18 @@ import ru.clevertec.ecl.validator.GiftCertificateValidator;
 import java.util.*;
 
 import static ru.clevertec.ecl.exception.ExceptionCode.*;
-import static ru.clevertec.ecl.util.PaginationUtil.calculateOffset;
+import static ru.clevertec.ecl.util.PaginationUtil.*;
 
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
-    private final GiftCertificateDao giftCertificateDao;
+    private final GiftCertificateRepository repository;
     private final TagService tagService;
     private final GiftCertificateValidator giftCertificateValidator;
 
     @Autowired
-    public GiftCertificateServiceImpl(GiftCertificateDao giftCertificateDao, TagService tagService,
+    public GiftCertificateServiceImpl(GiftCertificateRepository repository, TagService tagService,
                                       GiftCertificateValidator giftCertificateValidator) {
-        this.giftCertificateDao = giftCertificateDao;
+        this.repository = repository;
         this.giftCertificateValidator = giftCertificateValidator;
         this.tagService = tagService;
     }
@@ -36,33 +38,25 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if (!giftCertificateValidator.isValid(giftCertificate)) {
             throw new EntityException(NOT_VALID_GIFT_CERTIFICATE_DATA.getErrorCode());
         }
-        Long newId = giftCertificateDao.create(giftCertificate);
-        Set<Tag> tags = giftCertificate.getTags();
-        if (giftCertificateValidator.isTagsAttachedToCertificate(tags)) {
-            tags.stream().allMatch(tagService::isTagValid);
-            addTagsToCertificate(tags, newId);
-        }
-        return findById(newId);
+        return repository.save(giftCertificate);
     }
 
     @Override
-    public List<GiftCertificate> findAll(Integer offset, Integer limit) {
-        return giftCertificateDao.findAll(offset, limit);
+    public List<GiftCertificate> findAll(Integer page, Integer pageSize) {
+        page = checkPage(page);
+        pageSize = checkPageSize(pageSize);
+        return repository.findAll(PageRequest.of(page,pageSize)).toList();
     }
 
     @Override
     public GiftCertificate findById(Long id) {
-        GiftCertificate giftCertificate = giftCertificateDao.findById(id);
-        if (giftCertificate == null) {
-            throw new EntityException(GIFT_CERTIFICATE_NOT_FOUND.getErrorCode());
-        }
-        return giftCertificate;
+        return repository.findById(id).orElseThrow(() -> new EntityException(GIFT_CERTIFICATE_NOT_FOUND.getErrorCode()));
     }
 
     @Override
     public void delete(long id) {
         if (isGiftCertificateExist(id)) {
-            giftCertificateDao.delete(id);
+            repository.deleteById(id);
         }
     }
 
@@ -72,8 +66,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if (isGiftCertificateExist(idCertificate) && isTagReadyToCreate(tag)) {
             tagService.create(tag);
         }
-        tagService.addTagToCertificate(tagService.findTagByName(tag.getName()), idCertificate);
-        return giftCertificateDao.findById(idCertificate);
+        GiftCertificate certificate = findById(idCertificate);
+        Tag tag1 = tagService.findTagByName(tag.getName());
+        certificate.addTag(tag1);
+        return repository.save(certificate);
     }
 
     @Override
@@ -85,12 +81,12 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificate deleteTagFromCertificate(Tag tag, long idCertificate) {
-        GiftCertificate certificate = giftCertificateDao.findById(idCertificate);
+        GiftCertificate certificate = findById(idCertificate);
         if(isTagCanBeDeletedFromCertificate(tag, idCertificate)){
             Tag deletedTag = tagService.findTagByName(tag.getName());
             certificate.deleteTagFromCertificate(deletedTag);
         }
-        return giftCertificateDao.update(certificate);
+        return repository.save(certificate);
     }
 
     @Override
@@ -98,20 +94,27 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         isGiftCertificateExist(id);
         isGiftCertificateValid(updatedGiftCertificate);
         updatedGiftCertificate.setId(id);
-        return giftCertificateDao.update(updatedGiftCertificate);
+        return repository.save(updatedGiftCertificate);
     }
 
     @Override
     public List<GiftCertificate> findByAttributes(String tagName, String searchPart, String sortingField,
                                                   String orderSort, String search, Integer pageSize, Integer page) {
+        page = checkPage(page);
+        pageSize = checkPageSize(pageSize);
         List<GiftCertificate> certificates = new ArrayList<>();
         if (search == null){
-            certificates = giftCertificateDao.findAll(calculateOffset(pageSize, page), pageSize);
+            certificates = findAll(page, pageSize);
         }
         if (giftCertificateValidator.isGiftCertificateFieldValid(sortingField)
                 && giftCertificateValidator.isOrderSortValid(orderSort) && search != null) {
-            certificates = giftCertificateDao.findByAttributes(tagName, searchPart, sortingField, orderSort,
-                    calculateOffset(pageSize, page), pageSize );
+            Sort sort;
+            if (sortingField != null){
+                sort = Sort.by(sortingField);
+            } else {
+                sort = Sort.by("name");
+            }
+            certificates = repository.findAllByNameContainingOrDescriptionContaining(searchPart, searchPart, PageRequest.of(page,pageSize,sort)).toList();
         }
         return certificates;
     }
@@ -124,7 +127,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     private boolean isGiftCertificateExist(Long id) {
-        if (giftCertificateDao.findById(id) == null) {
+        if (!repository.existsById(id)) {
             throw new EntityException(GIFT_CERTIFICATE_NOT_FOUND.getErrorCode());
         }
         return true;
@@ -136,5 +139,15 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private boolean isTagCanBeDeletedFromCertificate(Tag tag, long idCertificate) {
         return tagService.isTagValid(tag) && isGiftCertificateExist(idCertificate) && tagService.isTagExist(tag);
+    }
+
+    @Override
+    public List<GiftCertificate> findAllByIds(List<Long> idList) {
+        return repository.findAllByIdIn(idList);
+    }
+
+    @Override
+    public void addTagToCertificate(Tag tag, Long idCertificate) {
+
     }
 }

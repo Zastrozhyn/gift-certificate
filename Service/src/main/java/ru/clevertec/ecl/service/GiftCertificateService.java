@@ -25,4 +25,7 @@ public interface GiftCertificateService {
 
     List<GiftCertificate> findByAttributes(String tagName, String searchPart, String sortingField,
                                            String orderSort, String search, Integer pageSize, Integer page);
+    List<GiftCertificate> findAllByIds(List<Long> idList);
+
+    void addTagToCertificate(Tag tag, Long idCertificate);
 }
