@@ -1,75 +1,69 @@
 package ru.clevertec.ecl.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.clevertec.ecl.dao.TagDao;
 import ru.clevertec.ecl.entity.Tag;
 import ru.clevertec.ecl.exception.EntityException;
+import ru.clevertec.ecl.repository.TagRepository;
 import ru.clevertec.ecl.service.TagService;
 import ru.clevertec.ecl.validator.TagValidator;
 
 import java.util.List;
 
 import static ru.clevertec.ecl.exception.ExceptionCode.*;
-import static ru.clevertec.ecl.util.PaginationUtil.calculateOffset;
+import static ru.clevertec.ecl.util.PaginationUtil.*;
 
 @Service
 public class TagServiceImpl implements TagService {
-    private final TagDao tagDao;
+    private final TagRepository repository;
     private final TagValidator tagValidator;
 
     @Autowired
-    public TagServiceImpl(TagDao tagDao, TagValidator tagValidator) {
-        this.tagDao = tagDao;
+    public TagServiceImpl(TagRepository repository, TagValidator tagValidator) {
+        this.repository = repository;
         this.tagValidator = tagValidator;
     }
 
     @Override
     public Tag create(Tag tag) {
-        if (isTagValid(tag) && tagDao.findTagByName(tag.getName()) == null) {
-            Long idCreatedTag = tagDao.create(tag);
-            return findTag(idCreatedTag);
-        }
-        return findTagByName(tag.getName());
+        isTagValid(tag);
+        return repository.save(tag);
     }
 
     @Override
     public Tag findTag(Long id) {
-        Tag tag = tagDao.findTag(id);
-        if (tag == null) {
-            throw new EntityException(TAG_NOT_FOUND.getErrorCode());
-        }
-        return tag;
+        return repository.findById(id).orElseThrow(() -> new EntityException(TAG_NOT_FOUND.getErrorCode()));
     }
 
     @Override
     public List<Tag> findAll(Integer pageSize, Integer page) {
-        return tagDao.findAll(calculateOffset(pageSize,page), pageSize);
+        System.out.println(page);
+        page = checkPage(page);
+        pageSize = checkPageSize(pageSize);
+        System.out.println(page);
+        return repository.findAll(PageRequest.of(page,pageSize)).toList();
     }
 
     @Override
     public void delete(Long id) {
-        if (tagDao.findTag(id) != null) {
-            tagDao.delete(id);
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
         } else throw new EntityException(TAG_NOT_FOUND.getErrorCode());
     }
 
     @Override
     public boolean isTagExist(Tag tag) {
-        if (tagDao.findTagByName(tag.getName()) == null) {
+        if (!repository.existsById(tag.getId())) {
             throw new EntityException(TAG_NOT_FOUND.getErrorCode());
         }
         return true;
     }
 
-    @Override
-    public void addTagToCertificate(Tag tag, Long idCertificate) {
-        tagDao.addTagToCertificate(tag, idCertificate);
-    }
 
     @Override
     public Tag findTagByName(String name) {
-        return tagDao.findTagByName(name);
+        return repository.findByName(name).orElseThrow(() -> new EntityException(TAG_NOT_FOUND.getErrorCode()));
     }
 
 
@@ -79,5 +73,10 @@ public class TagServiceImpl implements TagService {
             throw new EntityException(NOT_VALID_TAG_DATA.getErrorCode());
         }
         return true;
+    }
+
+    @Override
+    public List<Tag> getMostPopularTag(){
+        return repository.getMostPopularTag();
     }
 }

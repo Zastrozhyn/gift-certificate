@@ -30,7 +30,7 @@ public class TagController {
 
     @GetMapping
     public List<TagDto> findAll(@RequestParam(required = false, defaultValue = "10", name = "pageSize") Integer pageSize,
-                                @RequestParam(required = false, defaultValue = "1", name = "page") Integer page) {
+                                @RequestParam(required = false, defaultValue = "0", name = "page") Integer page) {
         return mapper.mapToDto(tagService.findAll(pageSize, page));
     }
 
@@ -43,5 +43,10 @@ public class TagController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTag(@PathVariable(name = "tagId") Long id) {
         tagService.delete(id);
+    }
+
+    @GetMapping("/tags")
+    public List<TagDto>  getMostPopularTag() {
+        return mapper.mapToDto(tagService.getMostPopularTag());
     }
 }

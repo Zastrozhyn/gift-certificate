@@ -20,7 +20,7 @@ import java.util.List;
 @ComponentScan("ru.clevertec.ecl")
 public class WebConfig implements WebMvcConfigurer {
 
-    private final static String FILE_BASENAME = "/errorMessage";
+    private final static String FILE_BASENAME = "errorMessage";
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {

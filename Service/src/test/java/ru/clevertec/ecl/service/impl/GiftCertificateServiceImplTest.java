@@ -11,16 +11,14 @@ import ru.clevertec.ecl.entity.GiftCertificate;
 import ru.clevertec.ecl.entity.Tag;
 import ru.clevertec.ecl.exception.EntityException;
 import ru.clevertec.ecl.exception.ExceptionCode;
+import ru.clevertec.ecl.repository.GiftCertificateRepository;
 import ru.clevertec.ecl.service.TagService;
 import ru.clevertec.ecl.validator.GiftCertificateValidator;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -43,7 +41,7 @@ public class GiftCertificateServiceImplTest {
     private static GiftCertificate certificate;
     private static Map<String,Object> updatedFields;
 
-    private GiftCertificateDao giftCertificateDao;
+    private GiftCertificateRepository giftCertificateDao;
     private TagService tagService;
     private GiftCertificateValidator giftCertificateValidator;
     private GiftCertificateServiceImpl service;
@@ -62,7 +60,7 @@ public class GiftCertificateServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        giftCertificateDao = Mockito.mock(GiftCertificateDaoImpl.class);
+        giftCertificateDao = Mockito.mock(GiftCertificateRepository.class);
         tagService = Mockito.mock(TagServiceImpl.class);
         giftCertificateValidator = new GiftCertificateValidator();
         service = new GiftCertificateServiceImpl(giftCertificateDao, tagService, giftCertificateValidator);
@@ -75,7 +73,7 @@ public class GiftCertificateServiceImplTest {
 
     @Test
     void checkFindById() {
-        when(giftCertificateDao.findById(CERTIFICATE_ID)).thenReturn(certificate);
+        when(giftCertificateDao.findById(CERTIFICATE_ID)).thenReturn(Optional.ofNullable(certificate));
         GiftCertificate actualCertificate = service.findById(CERTIFICATE_ID);
         assertThat(actualCertificate).isEqualTo(certificate);
         verify(giftCertificateDao).findById(CERTIFICATE_ID);
@@ -99,17 +97,17 @@ public class GiftCertificateServiceImplTest {
 
     @Test
     void checkCreate() {
-        when(giftCertificateDao.findById(CERTIFICATE_ID)).thenReturn(certificate);
-        when(giftCertificateDao.create(certificate)).thenReturn(CERTIFICATE_ID);
+        when(giftCertificateDao.findById(CERTIFICATE_ID)).thenReturn(Optional.ofNullable(certificate));
+        when(giftCertificateDao.save(certificate)).thenReturn(certificate);
         GiftCertificate actualCertificate = service.create(certificate);
         assertThat(actualCertificate).isEqualTo(certificate);
         verify(giftCertificateDao).findById(CERTIFICATE_ID);
-        verify(giftCertificateDao).create(certificate);
+        verify(giftCertificateDao).save(certificate);
     }
 
     @Test
     void checkAddTagToCertificate(){
-        when(giftCertificateDao.findById(CERTIFICATE_ID)).thenReturn(certificate);
+        when(giftCertificateDao.findById(CERTIFICATE_ID)).thenReturn(Optional.ofNullable(certificate));
         when(tagService.isTagValid(tag)).thenReturn(true);
         when(tagService.findTagByName(TAG_NAME)).thenReturn(tag);
         certificate.addTag(tag);
