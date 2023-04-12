@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import ru.clevertec.ecl.entity.Tag;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
 
@@ -27,7 +28,7 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
                 ) GROUP BY t.id) AS tagsc)""";
 
 
-    List<Tag> findByName(String name);
+    Optional<Tag> findByName(String name);
 
     @Query(value = GET_MOST_POPULAR_TAG_OF_RICHEST_USER, nativeQuery = true)
     List<Tag> getMostPopularTag();

@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.ecl.entity.GiftCertificate;
 import ru.clevertec.ecl.entity.Tag;
 import ru.clevertec.ecl.exception.EntityException;
+import ru.clevertec.ecl.exception.ExceptionCode;
 import ru.clevertec.ecl.repository.GiftCertificateRepository;
 import ru.clevertec.ecl.service.GiftCertificateService;
 import ru.clevertec.ecl.service.TagService;
@@ -91,6 +92,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public GiftCertificate update(Long id, GiftCertificate updatedGiftCertificate) {
+        GiftCertificate certificate = findById(id);
+        if(!certificate.getName().equals(updatedGiftCertificate.getName())
+                || !certificate.getDescription().equals(updatedGiftCertificate.getDescription())){
+            throw new EntityException(ERROR_INPUT_DATA.getErrorCode());
+        }
         isGiftCertificateExist(id);
         isGiftCertificateValid(updatedGiftCertificate);
         updatedGiftCertificate.setId(id);
@@ -146,8 +152,4 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return repository.findAllByIdIn(idList);
     }
 
-    @Override
-    public void addTagToCertificate(Tag tag, Long idCertificate) {
-
-    }
 }

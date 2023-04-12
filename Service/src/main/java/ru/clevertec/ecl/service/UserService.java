@@ -1,9 +1,7 @@
 package ru.clevertec.ecl.service;
 
-import ru.clevertec.ecl.entity.Tag;
 import ru.clevertec.ecl.entity.User;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface UserService {

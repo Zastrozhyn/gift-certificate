@@ -3,7 +3,6 @@ package ru.clevertec.ecl.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.clevertec.ecl.dao.TagDao;
 import ru.clevertec.ecl.entity.Tag;
 import ru.clevertec.ecl.exception.EntityException;
 import ru.clevertec.ecl.repository.TagRepository;
@@ -39,8 +38,10 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public List<Tag> findAll(Integer pageSize, Integer page) {
+        System.out.println(page);
         page = checkPage(page);
         pageSize = checkPageSize(pageSize);
+        System.out.println(page);
         return repository.findAll(PageRequest.of(page,pageSize)).toList();
     }
 
@@ -62,7 +63,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public Tag findTagByName(String name) {
-        return repository.findByName(name).get(0);
+        return repository.findByName(name).orElseThrow(() -> new EntityException(TAG_NOT_FOUND.getErrorCode()));
     }
 
 

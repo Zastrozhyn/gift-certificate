@@ -29,7 +29,7 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> findAll(@RequestParam(required = false, defaultValue = "10", name = "pageSize") Integer pageSize,
-                                 @RequestParam(required = false, defaultValue = "1", name = "page") Integer page){
+                                 @RequestParam(required = false, defaultValue = "0", name = "page") Integer page){
         return mapper.mapToDto(service.findAll(pageSize, page));
     }
 

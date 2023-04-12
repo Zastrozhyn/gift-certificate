@@ -52,7 +52,7 @@ public class GiftCertificateController {
                                                      @RequestParam(required = false, name = "sortingField") String sortingField,
                                                      @RequestParam(required = false, name = "orderSort") String orderSort,
                                                      @RequestParam(required = false, defaultValue = "10", name = "pageSize") Integer pageSize,
-                                                     @RequestParam(required = false, defaultValue = "1", name = "page") Integer page,
+                                                     @RequestParam(required = false, defaultValue = "0", name = "page") Integer page,
                                                      @RequestParam(required = false, name = "search") String search){
         return mapper.mapToDto(giftCertificateService.findByAttributes(tagName, searchPart,
                 sortingField, orderSort, search, pageSize, page));
@@ -60,7 +60,8 @@ public class GiftCertificateController {
 
     @PutMapping("/{id}/tags")
     public GiftCertificateDto addTagToCertificate(@PathVariable Long id, @RequestBody Tag tag){
-        return mapper.mapToDto(giftCertificateService.addTagToCertificate(tag, id));
+        giftCertificateService.addTagToCertificate(tag, id);
+        return mapper.mapToDto(giftCertificateService.findById(id));
     }
 
     @DeleteMapping ("/{id}/tags")
